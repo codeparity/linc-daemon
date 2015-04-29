@@ -1,0 +1,85 @@
+.\" Process this file with
+.\" groff -man -Tascii linc.1
+.\" - Mayur R. Naik <mrnk@users.sf.net>
+.\"
+.\" This file is part of linc $Name: rel-1-2 $
+.\"
+.\" $Log: linc.1,v $
+.\" Revision 1.3  2002/06/22 05:55:06  mrnk
+.\" Copy/paste error in linc.1
+.\"
+.\" Revision 1.2  2002/06/22 05:09:46  mrnk
+.\" Completed linc(1) user manual
+.\"
+.\"
+.TH LINC 1 "$Date: 2002/06/22 05:55:06 $"
+
+.SH NAME
+ linc - linc is not Cyberoam
+
+.SH SYNOPSIS
+.B linc [-h] [-v] [-d]
+
+.SH DESCRIPTION
+linc is a free multiplatform client for Cyberoam and 24online.
+Cyberoam is an employee internet management system for corporate
+networks. 24online is a subscriber management system for broadband
+ISPs.
+
+If run without any options, linc will background itself and detach
+from its controlling terminal. Suspend/resume and termination of the
+daemon is controlled by means of signals.
+
+.SH OPTIONS
+.IP -h
+Show a brief usage text and exit
+.IP -v
+Display version information and exit
+.IP -d
+Run in debug mode. In this mode, the program will run in the
+foreground and log all messages to stderr.
+
+.SH DIAGNOSTICS
+
+Messages are sent to the syslog daemon using facility LOG_DAEMON. In
+order to see the error and debug messages, you will need to edit your
+/etc/syslog.conf file to direct the messages to the desired output
+device or file.
+
+.SH NOTES
+The following signals have the specified effect when sent to linc.
+.TP
+.B SIGINT, SIGTERM
+These signals cause linc to log out of the current session and
+exit.
+.TP
+.B SIGUSR1
+This signal causes linc to login and resume normal operation
+when in suspend mode.
+.TP
+.B SIGUSR2
+This signal causes linc to enter log out of the current session
+and enter suspend mode. In suspend mode, no communication is
+attempted with the server.
+
+.SH FILES
+.I /etc/lincrc
+.RS
+The system wide configuration file. This will be overridden by the per
+user configuration file if it exists for the current user. See lincrc(5)
+for further details.
+.RE
+.I ~/.lincrc
+.RS
+Per user configuration file. If this file exists, it will override
+the system configuration file.
+
+.SH AUTHORS
+Mayur R. Naik <mrnk@users.sf.net>
+
+.SH BUGS
+As of this release, it is possible for multiple linc processes to be running on
+a host, when only one process is needed to authenticate all traffic from this host.
+
+.SH SEE ALSO
+.BR lincrc(5)

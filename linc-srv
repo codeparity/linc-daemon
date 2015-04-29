@@ -1,0 +1,62 @@
+#!/bin/bash
+#
+# chkconfig: 2345 85 15
+# description: linc is a free, multiplatform authentication client
+#              for Cyberoam / 24online.  Cyberoam is an employee
+#              management system for corporate networks. 24online is a 
+#              subscriber management system for broadband ISPs.
+# processname: linc
+# config: /etc/lincrc
+
+# source function library
+. /etc/init.d/functions
+
+RETVAL=0
+
+start() {
+	echo -n $"Starting linc: "
+
+	daemon linc
+	RETVAL=$?
+
+	echo
+	[ $RETVAL -eq 0 ]  && touch /var/lock/subsys/linc
+	return $RETVAL
+}
+
+stop() {
+	echo -n $"Shutting linc: "
+	killproc linc
+	RETVAL=$?
+
+	echo
+	[ $RETVAL -eq 0 ]  && rm -f /var/lock/subsys/linc
+	return $RETVAL
+}
+
+rhstatus() {
+	status linc
+}	
+
+case "$1" in
+  start)
+	start
+	;;
+  stop)
+	stop
+	;;
+  status)
+	rhstatus
+	;;
+  restart|reload)
+	stop
+	start
+	RETVAL=$?
+	;;
+  *)
+	echo $"Usage: $0 {start|stop|restart|reload|status}"
+	exit 1
+esac
+
+exit $RETVAL
+

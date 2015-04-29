@@ -1,0 +1,53 @@
+Tasks remaining for release 1.0
+-------------------------------
+X 1. Write classes for all application states.
+X 2. Write application class to integrate application states
+X 3. Accept command line options.
+X 4. Use an rc file for configuration as an alternative to the command line.
+X 5. Syslog support
+X 6. Complete source code documentation
+X 7. Write a man page
+
+Tasks remaining for release 1.1
+-------------------------------
+  1. Multiple protocol versions support
+X    1.1. Add abstract class VComm (version communicator) which should have
+          abstract Login/Logout/Keepalive methods. VComm derived classes will
+	  aggregate the SrvPxy class and use its Send/Recv primitives to
+	  communicate with the server.
+X         1.1.1. Throw relevant exception on exceptional response from server
+     1.3. Rename all xyzMsg derivatives to V2xyzMsg
+     1.2. Derive V1Comm and V2Comm from VComm.
+X         1.2.1. V1Comm will remain a stub currently.
+	  1.2.2. V2Comm will accept V2 authentication params in constr.
+	  1.2.3. V2Comm will instantiate the v2 login/logout/continue 
+	         messages internally and use them to implement the 
+		 abstract login/logout/keepalive methods.
+     1.3. Rewrite all CliStates to make user of VComm methods instead of
+          directly using Send/Recv primitives.
+     1.4. Add an option in configfile to accept protocol version
+          1.5. Option should be mandatory from linc v1.1+
+     1.5. Based on version option value, instantiate V1Comm or V2Comm in the 
+          CliApp constructor.
+  2. Cyberoam protocol version 1 support
+     2.1. Decode the version 1 messages.
+     2.2. Write V1xyzMsg classes.
+     2.2. Implement V1Comm using the V1xyzMsg classes.
+     2.3. Find someone who'll test/validate the version 1 implementation.
+  3. Update documentation to reflect changes in lincrc
+     3.1. Update README
+     3.2. Update lincrc man page
+     3.3. Update home page
+X 4. Build release 1.1 packages
+X    4.1. Source .gz
+X    4.2. RPM and SRPM
+
+Tasks remaining for a future release
+------------------------------------
+X 1. Find password encryption algorithm.
+     Finished this based on code by Rahul Mittal.
+X 2. Write a tool to extract configuration from tcpdump capture data.
+     Ashish Kulkarni already wrote a tool called GenLincRC.
+  3. Unix domain socket/FIFO based monitoring and control interface.
+
+

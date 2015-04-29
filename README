@@ -1,0 +1,214 @@
+[linc] - linc is not cyberoam		 site - http://linc.sourceforge.net
+
+Copyright (C) 2002  Mayur Naik <mayur@freeshell.org>.
+Read file COPYING that you should have received with this package.
+
+About linc 
+----------
+
+linc is a free multiplatform client for Cyberoam and 24online. Cyberoam
+is an employee internet management system used by corporate
+networks. 24online is a software that implements user access,
+authentication and accounting for broadband ISPs.
+
+linc was started because the client software for these programs is only
+supported on win32 platforms and the author needed to use it on *nix.
+
+Supported features 
+------------------
+
+* Implements the latest version of the protocol. 
+* Runs as a daemon which is ideal for running on servers 
+* Runs robustly even in the event of intermittent server and/or communication
+  failures.
+* Supports user suspend, resume and terminate control using signals 
+* Supports either host level configuration via /etc/lincrc or user level
+  configuration via ~/.lincrc
+* Compiles on GNU/Linux and FreeBSD. Should compile on any POSIX platform. No
+  guarantees. :) 
+* Support for configuring the password in clear text based on Rahul Mittal's
+  code.
+
+Related software
+----------------
+
+* Ashish Kulkarni's GenLincRC
+  (http://www.symonds.net/~ashish/projects/genlincrc.html) is a utility to 
+  generate configuration files
+
+Planned features 
+----------------
+
+* Support for older versions of the protocol and the ability to choose the
+  version. 
+* Support for monitoring and controlling the daemon via a unix domain
+  socket or FIFO thus paving the way for shell-like, web-based or graphical
+  interfaces.
+
+Installation
+------------
+
+1. Run ./configure
+2. Run make
+3. Run make install
+4. Create configuration file either as /etc/lincrc or ~/.lincrc
+   (~/.lincrc will take precedence over /etc/lincrc)
+
+Usage:
+------
+
+Usage: linc [-h] | [-v] | [-d]
+-h		Show help text
+-v		Show linc version
+-d		Start linc in debug mode.
+
+In debug mode, the process will run in the foreground and log to the tty.
+If invoked without options, linc will daemonize.
+In either daemon or debug mode, linc will log to syslog (i.e. usually log to
+/var/log/messages) with facility daemon
+
+In order to suspend linc (i.e. log out without terminating the process),
+send a SIGUSR2 to linc.
+e.g.
+$ killall -USR2 linc
+
+In order to resume linc (i.e. relogin after a suspend), send it a SIGUSR1
+e.g.
+$ killall -USR1 linc
+
+In order to terminate linc send it a SIGINT or SIGTERM. These will be handled
+and linc will gracefully shutdown.
+
+Configuration
+-------------
+
+Syntax:
+As of this version, the configuration file consists of <name> = <value>
+pairs written one per line. Blank lines and lines with comments are ignored.
+Anything else should cause an error message.
+
+The following configuration options are supported.
+
+srvaddr - the IP address of the Cyberoam / 24online server.
+e.g.
+srvaddr  = 172.16.0.3
+
+srvport - the UDP port on which the Cyberoam / 24online server listens.
+e.g.
+srvport  = 6060
+
+username - the username given by your ISP / administrator
+e.g.
+username = alibaba
+
+password - the cleartext password. This parameters should be preferred to
+	   authinfo.
+e.g.
+password = opensesame
+
+authinfo - the authentication parameters sent by the client
+	   (Note: extracting the authinfo is explained in the next section)
+     This parameter is deprecated and you should prefer the password parameter
+     instead.
+e.g.
+authinfo = 1409948274872937098507495873973249879878734
+
+hwaddr - your network card's hardware address.
+	 (Note: use the arp command to get to it)
+e.g.
+hwaddr   =  00:80:AD:83:15:5C
+
+Authentication parameters
+-------------------------
+
+Note: All of the following is currently unnecessary since cleartext
+passwords can be specified in the config file. The information is only
+presented FYI...
+
+Note: In case you do want to use the authinfo option, a better way to get the
+authinfo is by using Ashish Kulkarni's GenLincRC 
+(http://www.symonds.net/~ashish/projects/genlincrc.html).
+
+In the first version of the protocol, passwords were sent from the client to
+the server in clear text. username went between the 6th and 21st byte of the 
+login message and the password went in the clear between the 22nd and 37th
+byte starting from the application layer data. 
+This message format was susceptible to sniffing attacks.
+
+In the current version the password is not sent in clear text, but a digest of
+the password (plus maybe other params) is sent between the 36th and 95th byte
+of the login message starting from the application layer data. The username is
+between the 6th and 35th bytes. The network card's hardware address goes
+beyond the 96th byte.
+This message is susceptible to replay attacks (and that is why we can use the
+authentication info).
+
+Steps to get your authentication parameters:
+1. Capture the login session for your login name and password.
+   You can use tcpdump, ethereal, windump, netxray (in fact any sniffer) for
+   this purpose. Just keep the sniffer running, set the filter to udp port
+   6060 and start the 24online client. The login message is the first message
+   that goes from cient to server.
+
+e.g.  tcpdump -ax udp and port 6060 will give you
+
+09:16:16.864188 eth1 < clientmach.1182 > 172.16.0.3.6060: udp 5
+                         4500 008c 0a7f 0000 8011 c224 c0a8 0102
+                         ac10 0003 049e 17ac 0078 7312 2131 3132
+                         006d 6179 7572 6e61 696b 0000 0000 0000
+                         0000 0000 0000 0000 0000 0000 0000 0038
+                         3032 3335 3137 3936 3830 3432 3133 3130
+                         3430 3530 3830 3037 3037 3931 3632 3033
+                         3030 3734 3137 3931 3133 0000 0000 0000
+                         0000 0000 0000 0000 0000 0030 303a 3830
+                         3a41 443a 3833 3a31 353a 3543
+
+
+2. The application data starts from the 29th byte i.e. 2131 3132 onwards
+   The authentication info is from the 36th byte of application data till
+   where the zeroes start.
+   e.g. in the above case,
+   the authentication info is 38 3032 3335 3137 3936 ... 3931 3133 convert to
+   ascii to get the equivalent authentication information.
+
+3. Write into the configuration file and you are in business.
+
+4. I know that the above procedure really sucks, but it will have to do till I
+   get the time to write a utility to automate it. Right now, I'd rather focus
+   on getting crucial functionality working. Also I'll try to figure out the
+   algorithm then the user can simply use a directive like password = <pswd>
+   in the configuration file.
+
+The encryption algorithm
+------------------------
+The cyberoam encryption algorithm was reverse engineered by Rahul Mittal
+enabling the cleartext password parameter to be handled by linc. Rahul Mittal
+has also written an alternative cyberoam client called Slyberoam
+(http://mittal.sentris.com/software/slyberoam/default.asp).
+
+Issues with 2 network cards
+---------------------------
+
+Note: These changes are currently withheld.
+
+Vinay reported:
+
+> I have 2 network cards and am trying to use linc ...... 
+> linc does not work until i tell the server ppl to reset the 
+> mac address....
+
+Fix suggested by Arvind Rao:
+
+> if u have cyberoam for windows, use a sniffer to analyze the
+> login message...it contains the addresses of both cards separated
+> by a comma. Use this in lincrc. For example,
+
+> hwaddr = 00:80:AD:83:15:5C,00:80:AD:90:16:9A
+
+...
+
+> Make and run. It should work now but if it doesn't, try reversing
+> the order of the mac addresses.
+
+Fix suggested by Arvind Rao was incorporated into the source.
+Thanks Vinay and Arvind. :)

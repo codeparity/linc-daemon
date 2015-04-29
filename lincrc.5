@@ -1,0 +1,77 @@
+.\" Process this file with
+.\" groff -man -Tascii linc.1
+.\" - Mayur R. Naik <mrnk@users.sf.net>
+.\"
+.\" This file is part of linc $Name: rel-1-2 $
+.\"
+.\" $Log: lincrc.5,v $
+.\" Revision 1.2  2003/04/05 06:23:46  mrnk
+.\" README
+.\"
+.\" Revision 1.1  2002/06/22 05:10:33  mrnk
+.\" Completed lincrc(5) configuration manual
+.\"
+.\"
+.TH LINCRC 5 "$Date: 2003/04/05 06:23:46 $"
+
+.SH NAME
+lincrc \- linc rcfile
+
+.SH SYNOPSIS
+.B /etc/lincrc 
+.B ~/.lincrc
+
+.SH DESCRIPTION
+This man page explains the configuration file format for linc(1).
+
+/etc/lincrc is the system-wide configuration file. A .lincrc file in any
+user's home directory will override the system-wide rcfile.
+
+The configuration file consists of <name> = <value>
+pairs written one per line. Blank lines and lines with comments are ignored.
+Anything else should cause an error message.
+
+.SH PARAMETERS
+.TP
+.B srvaddr 
+the IP address of the Cyberoam / 24online server.
+.TP
+.B srvport 
+the UDP port on which the Cyberoam / 24online server listens.
+.TP
+.B username 
+the username given by your ISP / administrator
+.TP
+.B password
+your cleartext password. If this parameter is specified, it will override the
+authinfo parameter. The lincrc file should be protected by appropriate unix
+permission (e.g. 600) if using this parameter.
+.TP
+.B authinfo 
+the authentication parameters sent by the client (Note: extracting the 
+authinfo is explained in the linc README file). This parameter will be 
+overridden by the cleartext password if it is specified. This parameter is
+deprecated and you should prefer the password parameter instead.
+.TP
+.B hwaddr 
+your network card's hardware address. (Note: use the arp command to get to it)
+
+.SH EXAMPLES
+.TP
+srvaddr  = 172.16.0.3
+.TP
+srvport  = 6060
+.TP
+username = alibaba
+.TP
+password = opensesame
+.TP
+authinfo = 1409948274872937098507495873973249879878734
+.TP
+hwaddr   =  00:80:AD:83:15:5C
+
+.SH AUTHORS
+Mayur R. Naik <mrnk@users.sf.net>
+
+.SH SEE ALSO
+.BR linc(1)

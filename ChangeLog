@@ -1,0 +1,11 @@
+Sat Jun 22 17:43:13 IST 2002
+
+* Added man pages for linc(1) and lincrc(5)
+* Documented all source files
+* Added doxy.cfg.in for generating source code documentation
+* Added linc.spec.in for creatign RPM packages
+* Fixed all CliState derived classes
+
+Sat Jun 14 00:00:00 IST 2002
+
+Initial release of linc
